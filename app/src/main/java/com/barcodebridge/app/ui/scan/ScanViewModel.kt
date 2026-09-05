@@ -144,11 +144,23 @@ class ScanViewModel @Inject constructor(
 
         if (settings.transferMethod != TransferMethod.NONE) {
             when (val result = transportSender.send(content)) {
-                is TransportResult.Failure -> _events.emit(
-                    ScanEvent.TransportFailed(result.message ?: "transport error")
-                )
+                is TransportResult.Failure -> {
+                    val unmappable = result.unmappableChars
+                    if (unmappable != null) {
+                        _events.emit(ScanEvent.HidUnmappableChars(unmappable, result.layoutLabel.orEmpty()))
+                    } else {
+                        _events.emit(ScanEvent.TransportFailed(result.message ?: "transport error"))
+                    }
+                }
                 else -> Unit
             }
+        }
+    }
+
+    /** Called from the "switch to Wi-Fi companion app" action offered on the HID unmappable-characters dialog. */
+    fun switchToWifiTransfer() {
+        viewModelScope.launch {
+            settingsRepository.update { it.copy(transferMethod = TransferMethod.WIFI_TCP) }
         }
     }
 

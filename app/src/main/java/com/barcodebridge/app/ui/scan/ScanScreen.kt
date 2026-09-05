@@ -70,17 +70,23 @@ private fun ScanScreenContent(viewModel: ScanViewModel) {
 
     val duplicateSkippedText = stringResource(R.string.scan_duplicate_skipped)
     val noBarcodeText = stringResource(R.string.scan_no_barcode_found)
+    var unmappableDialogEvent by remember { mutableStateOf<ScanEvent.HidUnmappableChars?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
-            val message = when (event) {
-                is com.barcodebridge.app.ui.scan.ScanEvent.DuplicateSkipped -> duplicateSkippedText
-                is com.barcodebridge.app.ui.scan.ScanEvent.NoBarcodeInImage -> noBarcodeText
-                is com.barcodebridge.app.ui.scan.ScanEvent.TransportFailed -> event.message
-                is com.barcodebridge.app.ui.scan.ScanEvent.Error -> event.message
-                else -> null
+            when (event) {
+                is ScanEvent.HidUnmappableChars -> unmappableDialogEvent = event
+                else -> {
+                    val message = when (event) {
+                        is ScanEvent.DuplicateSkipped -> duplicateSkippedText
+                        is ScanEvent.NoBarcodeInImage -> noBarcodeText
+                        is ScanEvent.TransportFailed -> event.message
+                        is ScanEvent.Error -> event.message
+                        else -> null
+                    }
+                    if (message != null) scope.launch { snackbarHostState.showSnackbar(message) }
+                }
             }
-            if (message != null) scope.launch { snackbarHostState.showSnackbar(message) }
         }
     }
 
@@ -196,6 +202,33 @@ private fun ScanScreenContent(viewModel: ScanViewModel) {
         ManualEntryDialog(
             onDismiss = { viewModel.showManualEntry(false) },
             onSubmit = { content, format -> viewModel.submitManualEntry(content, format) },
+        )
+    }
+
+    unmappableDialogEvent?.let { event ->
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { unmappableDialogEvent = null },
+            title = { Text(stringResource(R.string.hid_unmappable_dialog_title)) },
+            text = {
+                Text(
+                    stringResource(
+                        R.string.hid_unmappable_dialog_message,
+                        event.layoutLabel,
+                        event.characters.joinToString(" "),
+                    )
+                )
+            },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    viewModel.switchToWifiTransfer()
+                    unmappableDialogEvent = null
+                }) { Text(stringResource(R.string.hid_suggest_method_b)) }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { unmappableDialogEvent = null }) {
+                    Text(stringResource(R.string.ok))
+                }
+            },
         )
     }
 }

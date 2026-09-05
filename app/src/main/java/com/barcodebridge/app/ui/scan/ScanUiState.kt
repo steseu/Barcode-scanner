@@ -24,6 +24,7 @@ sealed interface ScanEvent {
     data object DuplicateSkipped : ScanEvent
     data object NoBarcodeInImage : ScanEvent
     data class TransportFailed(val message: String) : ScanEvent
+    data class HidUnmappableChars(val characters: List<Char>, val layoutLabel: String) : ScanEvent
     data class Error(val message: String) : ScanEvent
 }
 

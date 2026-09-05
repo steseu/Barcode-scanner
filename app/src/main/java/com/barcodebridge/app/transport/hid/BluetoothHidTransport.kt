@@ -146,7 +146,9 @@ class BluetoothHidTransport @Inject constructor(
 
         return when (encoded) {
             is HidEncodeResult.Unmappable -> TransportResult.Failure(
-                message = "Unmappable characters for layout ${settings.layout}: ${encoded.characters.joinToString()}"
+                message = "Unmappable characters for layout ${settings.layout}: ${encoded.characters.joinToString()}",
+                unmappableChars = encoded.characters,
+                layoutLabel = settings.layout.name,
             )
             is HidEncodeResult.Success -> sendReports(device, hid, encoded.reports, settings.typingDelayMs)
         }
