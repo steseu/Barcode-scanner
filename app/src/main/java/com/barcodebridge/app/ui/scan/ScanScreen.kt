@@ -126,7 +126,11 @@ private fun ScanScreenContent(viewModel: ScanViewModel) {
 
             if (uiState.scanMode == ScanMode.CONTINUOUS && uiState.batchCount > 0) {
                 Text(
-                    text = stringResource(R.string.scan_batch_count, uiState.batchCount),
+                    text = androidx.compose.ui.res.pluralStringResource(
+                        R.plurals.scans_count,
+                        uiState.batchCount,
+                        uiState.batchCount,
+                    ),
                     color = Color.White,
                     modifier = Modifier
                         .align(Alignment.TopEnd)

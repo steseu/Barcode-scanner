@@ -108,7 +108,13 @@ fun HistoryScreen(
             TopAppBar(
                 title = {
                     if (uiState.isSelectionMode) {
-                        Text(stringResource(R.string.history_selected_count, uiState.selectedIds.size))
+                        Text(
+                            androidx.compose.ui.res.pluralStringResource(
+                                R.plurals.selected_items_count,
+                                uiState.selectedIds.size,
+                                uiState.selectedIds.size,
+                            )
+                        )
                     } else {
                         Text(stringResource(R.string.nav_history))
                     }

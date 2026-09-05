@@ -139,7 +139,7 @@ fun ExportDialog(
                         modifier = Modifier.fillMaxWidth(),
                     )
                     Row {
-                        Text(stringResource(R.string.export_share_after_export), modifier = Modifier.fillMaxWidth())
+                        Text(stringResource(R.string.export_share_after_save), modifier = Modifier.fillMaxWidth())
                         Switch(checked = settings.shareAfterExport, onCheckedChange = onSetShareAfterExport)
                     }
                 }
