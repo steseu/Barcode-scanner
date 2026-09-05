@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import com.barcodebridge.app.data.settings.AppLanguage
 import com.barcodebridge.app.data.settings.SettingsRepository
+import com.barcodebridge.app.transport.hid.BluetoothHidTransport
+import com.barcodebridge.app.transport.tcp.TcpTransport
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,11 +21,22 @@ class BarcodeBridgeApp : Application() {
     @Inject
     lateinit var settingsRepository: SettingsRepository
 
+    @Inject
+    lateinit var bluetoothHidTransport: BluetoothHidTransport
+
+    @Inject
+    lateinit var tcpTransport: TcpTransport
+
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     override fun onCreate() {
         super.onCreate()
         applyPersistedLocale()
+        // Both are safe no-ops until the user actually enables/configures the
+        // corresponding transfer method in settings (permission/host checks
+        // happen inside each transport).
+        bluetoothHidTransport.startRegistration()
+        tcpTransport.start()
     }
 
     /**
