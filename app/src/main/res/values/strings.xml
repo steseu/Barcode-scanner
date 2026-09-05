@@ -14,6 +14,8 @@
     <string name="scan_flashlight_off">Turn flashlight off</string>
     <string name="scan_from_gallery">Scan from image</string>
     <string name="scan_manual_entry">Manual entry</string>
+    <string name="scan_session">Session for new scans</string>
+    <string name="scan_session_none">No session</string>
     <string name="scan_manual_entry_hint">Enter barcode content</string>
     <string name="scan_manual_entry_format">Format</string>
     <string name="scan_result_copied">Copied to clipboard</string>
@@ -43,6 +45,11 @@
     <string name="history_filter_format">Format</string>
     <string name="history_filter_date_range">Time period</string>
     <string name="history_filter_all_formats">All formats</string>
+    <string name="history_filter_all_sessions">All sessions</string>
+    <string name="history_filter_period_all">Any time</string>
+    <string name="history_filter_period_24h">Last 24 hours</string>
+    <string name="history_filter_period_7d">Last 7 days</string>
+    <string name="history_filter_period_30d">Last 30 days</string>
     <string name="history_empty">No scans yet</string>
     <string name="history_select_all">Select all</string>
     <string name="history_selected_count">%1$d selected</string>
@@ -54,6 +61,8 @@
     <string name="history_open_url">Open link</string>
     <string name="history_add_contact">Add contact</string>
     <string name="history_connect_wifi">Connect to Wi-Fi</string>
+    <string name="history_wifi_suggested">Network \"%1$s\" suggested — confirm it in the Wi-Fi settings</string>
+    <string name="history_wifi_invalid">This QR code does not contain valid Wi-Fi credentials</string>
     <string name="history_add_calendar_event">Add calendar event</string>
     <string name="history_session_new">New session</string>
     <string name="history_session_rename">Rename session</string>

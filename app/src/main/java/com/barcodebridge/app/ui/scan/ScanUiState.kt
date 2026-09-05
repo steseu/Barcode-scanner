@@ -3,6 +3,7 @@ package com.barcodebridge.app.ui.scan
 import com.barcodebridge.app.data.settings.ScanMode
 import com.barcodebridge.app.domain.model.BarcodeFormat
 import com.barcodebridge.app.domain.model.ScanRecord
+import com.barcodebridge.app.domain.model.ScanSession
 
 data class ScanUiState(
     val scanMode: ScanMode = ScanMode.SINGLE,
@@ -11,12 +12,14 @@ data class ScanUiState(
     val minZoomRatio: Float = 1f,
     val maxZoomRatio: Float = 4f,
     val isPaused: Boolean = false,
+    val flashFeedbackEnabled: Boolean = true,
     val batchCount: Int = 0,
     val activeSessionId: Long? = null,
     val activeSessionName: String? = null,
+    val sessions: List<ScanSession> = emptyList(),
+    val sessionPickerVisible: Boolean = false,
     val lastScan: ScanRecord? = null,
     val manualEntryVisible: Boolean = false,
-    val hasCamera: Boolean = true,
 )
 
 sealed interface ScanEvent {

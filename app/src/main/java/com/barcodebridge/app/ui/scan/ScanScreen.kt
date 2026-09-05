@@ -60,6 +60,7 @@ fun ScanScreen(viewModel: ScanViewModel = hiltViewModel()) {
     }
 }
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 private fun ScanScreenContent(viewModel: ScanViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -70,6 +71,7 @@ private fun ScanScreenContent(viewModel: ScanViewModel) {
 
     val duplicateSkippedText = stringResource(R.string.scan_duplicate_skipped)
     val noBarcodeText = stringResource(R.string.scan_no_barcode_found)
+    val noCameraText = stringResource(R.string.error_no_camera)
     var unmappableDialogEvent by remember { mutableStateOf<ScanEvent.HidUnmappableChars?>(null) }
 
     LaunchedEffect(Unit) {
@@ -104,12 +106,20 @@ private fun ScanScreenContent(viewModel: ScanViewModel) {
                 minZoomRatio = uiState.minZoomRatio,
                 maxZoomRatio = uiState.maxZoomRatio,
                 onZoomRatioChange = { viewModel.setZoomRatio(camera?.cameraControl, it) },
-                onCameraReady = { camera = it },
+                onCameraReady = {
+                    camera = it
+                    viewModel.onCameraReady(it)
+                },
                 onBarcodesDetected = { viewModel.onBarcodesDetected(it) },
+                onCameraUnavailable = {
+                    scope.launch { snackbarHostState.showSnackbar(noCameraText) }
+                },
             )
 
             ScanTargetOverlay(highlighted = uiState.isPaused, modifier = Modifier.fillMaxSize())
-            ScanFlashOverlay(flashKey = uiState.lastScan?.id, modifier = Modifier.fillMaxSize())
+            if (uiState.flashFeedbackEnabled) {
+                ScanFlashOverlay(flashKey = uiState.lastScan?.id, modifier = Modifier.fillMaxSize())
+            }
 
             if (!uiState.isPaused) {
                 Text(
@@ -149,6 +159,17 @@ private fun ScanScreenContent(viewModel: ScanViewModel) {
                     .padding(bottom = 24.dp, top = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                androidx.compose.material3.AssistChip(
+                    onClick = { viewModel.showSessionPicker(true) },
+                    label = {
+                        Text(
+                            uiState.activeSessionName
+                                ?: stringResource(R.string.scan_session_none)
+                        )
+                    },
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+
                 SingleChoiceSegmentedButtonRow(modifier = Modifier.padding(horizontal = 16.dp)) {
                     SegmentedButton(
                         selected = uiState.scanMode == ScanMode.SINGLE,
@@ -200,6 +221,16 @@ private fun ScanScreenContent(viewModel: ScanViewModel) {
                 }
             }
         }
+    }
+
+    if (uiState.sessionPickerVisible) {
+        SessionPickerDialog(
+            sessions = uiState.sessions,
+            activeSessionId = uiState.activeSessionId,
+            onDismiss = { viewModel.showSessionPicker(false) },
+            onSelect = viewModel::setActiveSession,
+            onCreate = viewModel::createAndSelectSession,
+        )
     }
 
     if (uiState.manualEntryVisible) {

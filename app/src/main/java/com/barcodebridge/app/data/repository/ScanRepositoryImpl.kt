@@ -48,7 +48,7 @@ class ScanRepositoryImpl @Inject constructor(
         now: Instant,
         withinWindow: Duration,
     ): Boolean {
-        val recent = scanDao.getRecentForDuplicateCheck(sessionId)
+        val recent = scanDao.getRecentForDuplicateCheck(sessionId, limit = DUPLICATE_CHECK_WINDOW_SIZE)
         val lastMatch = recent.firstOrNull { it.content == content && it.format == format.name }
             ?: return false
         val elapsed = now.toEpochMilliseconds() - lastMatch.timestampMillis
@@ -63,6 +63,11 @@ class ScanRepositoryImpl @Inject constructor(
         note = entity.note,
         sessionId = entity.sessionId,
     )
+
+    private companion object {
+        /** How many recent scans to compare against when suppressing continuous-scan duplicates. */
+        const val DUPLICATE_CHECK_WINDOW_SIZE = 5
+    }
 
     private fun toEntity(record: ScanRecord): ScanEntity = ScanEntity(
         id = record.id,

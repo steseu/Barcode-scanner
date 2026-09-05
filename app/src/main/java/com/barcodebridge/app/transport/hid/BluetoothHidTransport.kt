@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -184,13 +185,15 @@ class BluetoothHidTransport @Inject constructor(
         hid: BluetoothHidDevice,
         reports: List<HidReport>,
         typingDelayMs: Int,
-    ): TransportResult {
+    ): TransportResult = withContext(Dispatchers.IO) {
+        // Typing a long barcode is dozens of binder calls spaced by the
+        // configured delay - never do that on the caller's main dispatcher.
         for (report in reports) {
             val sent = hid.sendReport(device, REPORT_ID_KEYBOARD, report.toBytes())
-            if (!sent) return TransportResult.Failure(message = "sendReport failed")
+            if (!sent) return@withContext TransportResult.Failure(message = "sendReport failed")
             delay(typingDelayMs.toLong())
         }
-        return TransportResult.Success
+        TransportResult.Success
     }
 
     private fun hasBluetoothPermission(): Boolean {

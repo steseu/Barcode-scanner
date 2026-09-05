@@ -14,6 +14,8 @@
     <string name="scan_flashlight_off">Taschenlampe ausschalten</string>
     <string name="scan_from_gallery">Aus Bild scannen</string>
     <string name="scan_manual_entry">Manuelle Eingabe</string>
+    <string name="scan_session">Session für neue Scans</string>
+    <string name="scan_session_none">Keine Session</string>
     <string name="scan_manual_entry_hint">Barcode-Inhalt eingeben</string>
     <string name="scan_manual_entry_format">Format</string>
     <string name="scan_result_copied">In Zwischenablage kopiert</string>
@@ -43,6 +45,11 @@
     <string name="history_filter_format">Format</string>
     <string name="history_filter_date_range">Zeitraum</string>
     <string name="history_filter_all_formats">Alle Formate</string>
+    <string name="history_filter_all_sessions">Alle Sessions</string>
+    <string name="history_filter_period_all">Beliebiger Zeitraum</string>
+    <string name="history_filter_period_24h">Letzte 24 Stunden</string>
+    <string name="history_filter_period_7d">Letzte 7 Tage</string>
+    <string name="history_filter_period_30d">Letzte 30 Tage</string>
     <string name="history_empty">Noch keine Scans</string>
     <string name="history_select_all">Alle auswählen</string>
     <string name="history_selected_count">%1$d ausgewählt</string>
@@ -54,6 +61,8 @@
     <string name="history_open_url">Link öffnen</string>
     <string name="history_add_contact">Kontakt hinzufügen</string>
     <string name="history_connect_wifi">Mit WLAN verbinden</string>
+    <string name="history_wifi_suggested">Netzwerk \"%1$s\" vorgeschlagen — in den WLAN-Einstellungen bestätigen</string>
+    <string name="history_wifi_invalid">Dieser QR-Code enthält keine gültigen WLAN-Zugangsdaten</string>
     <string name="history_add_calendar_event">Kalendereintrag hinzufügen</string>
     <string name="history_session_new">Neue Session</string>
     <string name="history_session_rename">Session umbenennen</string>

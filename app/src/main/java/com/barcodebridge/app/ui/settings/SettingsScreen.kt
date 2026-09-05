@@ -1,6 +1,7 @@
 package com.barcodebridge.app.ui.settings
 
 import android.Manifest
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -10,14 +11,22 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -30,6 +39,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -62,16 +72,22 @@ fun SettingsScreen(
     var showExportDialog by remember { mutableStateOf(false) }
     var showCalibrationDialog by remember { mutableStateOf(false) }
     var showPairingScanner by remember { mutableStateOf(false) }
+    var showBluetoothRationale by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
-    val bluetoothPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) viewModel.hidTransport.startRegistration()
+    val bluetoothPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { results ->
+        if (results.values.all { it }) viewModel.hidTransport.startRegistration()
     }
 
     androidx.compose.runtime.LaunchedEffect(Unit) { viewModel.refreshTcpQueueCount() }
 
     androidx.compose.material3.Scaffold(
         topBar = { TopAppBar(title = { Text(stringResource(R.string.nav_settings)) }) },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         LazyColumn(modifier = Modifier.fillMaxWidth().padding(padding)) {
             item { SectionHeader(stringResource(R.string.settings_section_scan)) }
@@ -107,8 +123,14 @@ fun SettingsScreen(
             item {
                 TransferMethodRow(settings.transferMethod) { method ->
                     viewModel.setTransferMethod(method)
-                    if (method == TransferMethod.BLUETOOTH_HID) {
-                        bluetoothPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                    // The granular Bluetooth permissions only exist on API 31+;
+                    // older versions are covered by the manifest's legacy
+                    // BLUETOOTH/BLUETOOTH_ADMIN install-time permissions. The
+                    // rationale is always shown first, never a bare prompt.
+                    if (method == TransferMethod.BLUETOOTH_HID &&
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                    ) {
+                        showBluetoothRationale = true
                     }
                 }
             }
@@ -134,7 +156,20 @@ fun SettingsScreen(
                     HttpSettingsSection(
                         http = settings.http,
                         onUpdate = viewModel::updateHttp,
-                        onTest = { scope.launch { viewModel.testHttpWebhook() } },
+                        onTest = {
+                            scope.launch {
+                                val message = viewModel.testHttpWebhook().fold(
+                                    onSuccess = { code -> context.getString(R.string.http_webhook_test_success, code) },
+                                    onFailure = { error ->
+                                        context.getString(
+                                            R.string.http_webhook_test_failed,
+                                            error.message ?: error::class.java.simpleName,
+                                        )
+                                    },
+                                )
+                                snackbarHostState.showSnackbar(message)
+                            }
+                        },
                     )
                 }
                 TransferMethod.NONE -> Unit
@@ -165,6 +200,30 @@ fun SettingsScreen(
             onDismiss = { showCalibrationDialog = false; viewModel.resetCalibration() },
             onSend = viewModel::sendCalibrationTestString,
             onCompare = viewModel::compareCalibration,
+        )
+    }
+
+    if (showBluetoothRationale) {
+        AlertDialog(
+            onDismissRequest = { showBluetoothRationale = false },
+            title = { Text(stringResource(R.string.permission_bluetooth_title)) },
+            text = { Text(stringResource(R.string.permission_bluetooth_rationale)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showBluetoothRationale = false
+                    bluetoothPermissionLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.BLUETOOTH_CONNECT,
+                            Manifest.permission.BLUETOOTH_ADVERTISE,
+                        )
+                    )
+                }) { Text(stringResource(R.string.permission_grant)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showBluetoothRationale = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
         )
     }
 
@@ -423,7 +482,61 @@ private fun HttpSettingsSection(
             )
             Text(stringResource(R.string.http_webhook_plain))
         }
+        Spacer(Modifier.height(12.dp))
+        HttpHeadersEditor(headers = http.headers, onUpdate = onUpdate)
+
         Spacer(Modifier.height(8.dp))
         Button(onClick = onTest) { Text(stringResource(R.string.http_webhook_test)) }
+    }
+}
+
+@Composable
+private fun HttpHeadersEditor(
+    headers: Map<String, String>,
+    onUpdate: ((com.barcodebridge.app.data.settings.HttpSettings) -> com.barcodebridge.app.data.settings.HttpSettings) -> Unit,
+) {
+    var newKey by remember { mutableStateOf("") }
+    var newValue by remember { mutableStateOf("") }
+
+    Text(stringResource(R.string.http_webhook_headers), style = MaterialTheme.typography.labelLarge)
+
+    headers.forEach { (key, value) ->
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("$key: $value", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+            IconButton(onClick = { onUpdate { it.copy(headers = it.headers - key) } }) {
+                Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.history_delete))
+            }
+        }
+    }
+
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        OutlinedTextField(
+            value = newKey,
+            onValueChange = { newKey = it },
+            label = { Text(stringResource(R.string.http_webhook_header_key_hint)) },
+            singleLine = true,
+            modifier = Modifier.weight(1f),
+        )
+        Spacer(Modifier.width(8.dp))
+        OutlinedTextField(
+            value = newValue,
+            onValueChange = { newValue = it },
+            label = { Text(stringResource(R.string.http_webhook_header_value_hint)) },
+            singleLine = true,
+            modifier = Modifier.weight(1f),
+        )
+    }
+    TextButton(
+        onClick = {
+            onUpdate { it.copy(headers = it.headers + (newKey.trim() to newValue.trim())) }
+            newKey = ""
+            newValue = ""
+        },
+        enabled = newKey.isNotBlank(),
+    ) {
+        Text(stringResource(R.string.http_webhook_add_header))
     }
 }

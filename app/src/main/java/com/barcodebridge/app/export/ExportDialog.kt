@@ -31,6 +31,7 @@ import com.barcodebridge.app.data.settings.CsvColumn
 import com.barcodebridge.app.data.settings.CsvDelimiter
 import com.barcodebridge.app.data.settings.LineEnding
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun ExportDialog(
     settings: AppSettings,

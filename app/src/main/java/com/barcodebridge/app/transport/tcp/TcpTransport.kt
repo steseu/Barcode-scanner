@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.BufferedWriter
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -114,11 +115,13 @@ class TcpTransport @Inject constructor(
         }
     }
 
-    override suspend fun send(text: String): TransportResult {
-        if (writeLine(text)) return TransportResult.Success
+    override suspend fun send(text: String): TransportResult = withContext(Dispatchers.IO) {
+        // Callers are on the main dispatcher (ViewModel scope); socket writes
+        // must not happen there or Android throws NetworkOnMainThreadException.
+        if (writeLine(text)) return@withContext TransportResult.Success
         offlineQueue.enqueue(text)
         _status.value = _status.value.copy(state = TcpConnectionState.UNREACHABLE)
-        return TransportResult.Failure(message = "Host unreachable, queued for retry")
+        TransportResult.Failure(message = "Host unreachable, queued for retry")
     }
 
     private fun closeSocket() {

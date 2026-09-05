@@ -41,7 +41,7 @@ enum class BarcodeFormat(val displayName: String) {
         }
 
         /** Bitmask of all formats this app supports, for [com.google.mlkit.vision.barcode.BarcodeScannerOptions]. */
-        const val SUPPORTED_MLKIT_FORMATS_MASK =
+        val SUPPORTED_MLKIT_FORMATS_MASK: Int =
             Barcode.FORMAT_EAN_8 or Barcode.FORMAT_EAN_13 or Barcode.FORMAT_UPC_A or
                 Barcode.FORMAT_UPC_E or Barcode.FORMAT_CODE_39 or Barcode.FORMAT_CODE_93 or
                 Barcode.FORMAT_CODE_128 or Barcode.FORMAT_ITF or Barcode.FORMAT_CODABAR or

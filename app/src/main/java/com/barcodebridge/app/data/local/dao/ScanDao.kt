@@ -67,7 +67,7 @@ interface ScanDao {
         LIMIT :limit
         """
     )
-    suspend fun getRecentForDuplicateCheck(sessionId: Long?, limit: Int = 5): List<ScanEntity>
+    suspend fun getRecentForDuplicateCheck(sessionId: Long?, limit: Int): List<ScanEntity>
 
     @Query("SELECT * FROM scans WHERE id IN (:ids)")
     suspend fun getByIds(ids: List<Long>): List<ScanEntity>

@@ -56,6 +56,8 @@ import com.barcodebridge.app.domain.model.ScanRecord
 import com.barcodebridge.app.export.ExportDialog
 import com.barcodebridge.app.export.ExportViewModel
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlin.time.Duration.Companion.days
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,8 +71,11 @@ fun HistoryScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var showExportDialog by remember { mutableStateOf(false) }
-    var pendingExportFormat by remember { mutableStateOf<com.barcodebridge.app.export.ExportFormatType?>(null) }
     val unassignedLabel = stringResource(R.string.history_session_default)
+    // Resolved here (composable scope) so the CSV header row is localized
+    // instead of falling back to the raw enum names.
+    val csvColumnLabels = com.barcodebridge.app.data.settings.CsvColumn.entries
+        .associateWith { com.barcodebridge.app.export.csvColumnLabel(it) }
     val deleteConfirmTitle = stringResource(R.string.history_delete_confirm_title)
 
     val createDocumentLauncher = rememberLauncherForActivityResult(
@@ -192,6 +197,7 @@ fun HistoryScreen(
                             onEditNote = { viewModel.startEditingNote(record) },
                             onDelete = { recordPendingDeletion = record },
                             onContentAction = { intent -> runCatching { context.startActivity(intent) } },
+                            onMessage = { message -> scope.launch { snackbarHostState.showSnackbar(message) } },
                         )
                     }
                 }
@@ -238,7 +244,6 @@ fun HistoryScreen(
                 } else {
                     uiState.scans
                 }
-                pendingExportFormat = format
                 showExportDialog = false
                 scope.launch {
                     val prepared = exportViewModel.prepare(
@@ -246,7 +251,7 @@ fun HistoryScreen(
                         records = recordsToExport,
                         sessions = uiState.sessions,
                         unassignedSessionLabel = unassignedLabel,
-                        columnLabel = { it.name },
+                        columnLabel = { column -> csvColumnLabels[column] ?: column.name },
                     )
                     createDocumentLauncher.launch(prepared.filename)
                 }
@@ -284,7 +289,7 @@ private fun FormatFilterRow(
     }
 }
 
-private enum class DateRangePreset { ALL, TODAY, LAST_7_DAYS, LAST_30_DAYS }
+private enum class DateRangePreset { ALL, LAST_24_HOURS, LAST_7_DAYS, LAST_30_DAYS }
 
 @Composable
 private fun DateRangeFilterRow(
@@ -300,22 +305,22 @@ private fun DateRangeFilterRow(
                 selected = selected == preset,
                 onClick = {
                     selected = preset
-                    val now = kotlinx.datetime.Clock.System.now()
+                    val now = Clock.System.now()
                     val start = when (preset) {
                         DateRangePreset.ALL -> null
-                        DateRangePreset.TODAY -> now.minus(kotlin.time.Duration.parse("1d"))
-                        DateRangePreset.LAST_7_DAYS -> now.minus(kotlin.time.Duration.parse("7d"))
-                        DateRangePreset.LAST_30_DAYS -> now.minus(kotlin.time.Duration.parse("30d"))
+                        DateRangePreset.LAST_24_HOURS -> now.minus(1.days)
+                        DateRangePreset.LAST_7_DAYS -> now.minus(7.days)
+                        DateRangePreset.LAST_30_DAYS -> now.minus(30.days)
                     }
                     onSelectRange(DateRange(start, null))
                 },
                 label = {
                     Text(
                         when (preset) {
-                            DateRangePreset.ALL -> stringResource(R.string.history_filter_all_formats)
-                            DateRangePreset.TODAY -> "24h"
-                            DateRangePreset.LAST_7_DAYS -> "7d"
-                            DateRangePreset.LAST_30_DAYS -> "30d"
+                            DateRangePreset.ALL -> stringResource(R.string.history_filter_period_all)
+                            DateRangePreset.LAST_24_HOURS -> stringResource(R.string.history_filter_period_24h)
+                            DateRangePreset.LAST_7_DAYS -> stringResource(R.string.history_filter_period_7d)
+                            DateRangePreset.LAST_30_DAYS -> stringResource(R.string.history_filter_period_30d)
                         }
                     )
                 },
@@ -340,7 +345,7 @@ private fun SessionFilterRow(
             FilterChip(
                 selected = selectedSessionId == null,
                 onClick = { onSelectSession(null) },
-                label = { Text(stringResource(R.string.history_filter_all_formats)) },
+                label = { Text(stringResource(R.string.history_filter_all_sessions)) },
             )
         }
         items(sessions, key = { it.id }) { session ->
@@ -396,6 +401,7 @@ private fun HistoryRow(
     onEditNote: () -> Unit,
     onDelete: () -> Unit,
     onContentAction: (Intent) -> Unit,
+    onMessage: (String) -> Unit,
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -419,24 +425,27 @@ private fun HistoryRow(
                     when (BarcodeContentClassifier.classify(record.content)) {
                         BarcodeContentType.URL -> DropdownMenuItem(
                             text = { Text(stringResource(R.string.history_open_url)) },
-                            onClick = { menuExpanded = false; onContentAction(com.barcodebridge.app.ui.history.ScanContentActions.openUrlIntent(record.content)) },
+                            onClick = { menuExpanded = false; onContentAction(ScanContentActions.openUrlIntent(record.content)) },
                         )
                         BarcodeContentType.CONTACT_VCARD -> DropdownMenuItem(
                             text = { Text(stringResource(R.string.history_add_contact)) },
-                            onClick = { menuExpanded = false; onContentAction(com.barcodebridge.app.ui.history.ScanContentActions.addContactIntent(context, record.content)) },
+                            onClick = { menuExpanded = false; onContentAction(ScanContentActions.addContactIntent(context, record.content)) },
                         )
                         BarcodeContentType.CALENDAR_EVENT -> DropdownMenuItem(
                             text = { Text(stringResource(R.string.history_add_calendar_event)) },
-                            onClick = { menuExpanded = false; onContentAction(com.barcodebridge.app.ui.history.ScanContentActions.addCalendarEventIntent(record.content)) },
+                            onClick = { menuExpanded = false; onContentAction(ScanContentActions.addCalendarEventIntent(record.content)) },
                         )
                         BarcodeContentType.WIFI -> DropdownMenuItem(
                             text = { Text(stringResource(R.string.history_connect_wifi)) },
                             onClick = {
                                 menuExpanded = false
-                                when (val result = com.barcodebridge.app.ui.history.ScanContentActions.connectToWifi(context, record.content)) {
-                                    is com.barcodebridge.app.ui.history.ScanContentActions.WifiConnectResult.OpenSettingsManually ->
-                                        onContentAction(com.barcodebridge.app.ui.history.ScanContentActions.openWifiSettingsIntent())
-                                    else -> Unit
+                                when (val result = ScanContentActions.connectToWifi(context, record.content)) {
+                                    is ScanContentActions.WifiConnectResult.OpenSettingsManually ->
+                                        onContentAction(ScanContentActions.openWifiSettingsIntent())
+                                    is ScanContentActions.WifiConnectResult.Suggested ->
+                                        onMessage(context.getString(R.string.history_wifi_suggested, result.ssid))
+                                    ScanContentActions.WifiConnectResult.InvalidQr ->
+                                        onMessage(context.getString(R.string.history_wifi_invalid))
                                 }
                             },
                         )

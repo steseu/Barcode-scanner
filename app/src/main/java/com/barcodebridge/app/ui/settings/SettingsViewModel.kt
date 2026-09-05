@@ -90,7 +90,11 @@ class SettingsViewModel @Inject constructor(
 
     fun setTransferMethod(method: TransferMethod) {
         viewModelScope.launch { settingsRepository.update { it.copy(transferMethod = method) } }
+        // Bring up the newly selected transport and stop the one that is no
+        // longer used, so an unselected method doesn't keep a socket or an
+        // HID registration alive in the background.
         if (method == TransferMethod.BLUETOOTH_HID) hidTransport.startRegistration()
+        if (method == TransferMethod.WIFI_TCP) tcpTransport.start() else tcpTransport.stop()
     }
 
     fun updateHid(transform: (HidSettings) -> HidSettings) {

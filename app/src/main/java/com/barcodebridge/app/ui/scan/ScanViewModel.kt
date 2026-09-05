@@ -2,9 +2,13 @@ package com.barcodebridge.app.ui.scan
 
 import android.content.Context
 import android.net.Uri
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraControl
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.barcodebridge.app.data.repository.ScanRepository
+import com.barcodebridge.app.data.repository.SessionRepository
+import com.barcodebridge.app.data.settings.FeedbackSettings
 import com.barcodebridge.app.data.settings.ScanMode
 import com.barcodebridge.app.data.settings.SettingsRepository
 import com.barcodebridge.app.data.settings.TransferMethod
@@ -25,12 +29,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlin.time.Duration.Companion.milliseconds
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class ScanViewModel @Inject constructor(
     private val scanRepository: ScanRepository,
+    private val sessionRepository: SessionRepository,
     private val settingsRepository: SettingsRepository,
     private val feedbackPlayer: ScanFeedbackPlayer,
     private val imageFileScanner: ImageFileScanner,
@@ -43,10 +48,35 @@ class ScanViewModel @Inject constructor(
     private val _events = MutableSharedFlow<ScanEvent>(extraBufferCapacity = 8)
     val events: SharedFlow<ScanEvent> = _events.asSharedFlow()
 
+    /**
+     * The analyzer delivers ~30 frames/second and each detection would
+     * otherwise start its own coroutine, so several would race past the
+     * pause/duplicate checks before the first one finished writing to the
+     * database - inserting the same barcode several times. Only touched from
+     * the main thread (analyzer callback + viewModelScope), so a plain flag
+     * is enough.
+     */
+    private var scanInFlight = false
+
     init {
         viewModelScope.launch {
-            val defaultMode = settingsRepository.settings.first().defaultScanMode
-            _uiState.value = _uiState.value.copy(scanMode = defaultMode)
+            val settings = settingsRepository.settings.first()
+            _uiState.value = _uiState.value.copy(
+                scanMode = settings.defaultScanMode,
+                flashFeedbackEnabled = settings.feedback.flashEnabled,
+            )
+        }
+        viewModelScope.launch {
+            sessionRepository.observeAll().collect { sessions ->
+                val state = _uiState.value
+                // A session deleted elsewhere must not stay selected here.
+                val stillExists = sessions.any { it.id == state.activeSessionId }
+                _uiState.value = state.copy(
+                    sessions = sessions,
+                    activeSessionId = state.activeSessionId?.takeIf { stillExists },
+                    activeSessionName = state.activeSessionName?.takeIf { stillExists },
+                )
+            }
         }
     }
 
@@ -54,15 +84,25 @@ class ScanViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(scanMode = mode, isPaused = false, batchCount = 0)
     }
 
-    fun toggleTorch(camera: androidx.camera.core.CameraControl?) {
+    fun toggleTorch(cameraControl: CameraControl?) {
         val newState = !_uiState.value.torchOn
-        camera?.enableTorch(newState)
+        cameraControl?.enableTorch(newState)
         _uiState.value = _uiState.value.copy(torchOn = newState)
     }
 
-    fun setZoomRatio(camera: androidx.camera.core.CameraControl?, ratio: Float) {
-        camera?.setZoomRatio(ratio)
+    fun setZoomRatio(cameraControl: CameraControl?, ratio: Float) {
+        cameraControl?.setZoomRatio(ratio)
         _uiState.value = _uiState.value.copy(zoomRatio = ratio)
+    }
+
+    /** Picks up the device's real zoom range instead of assuming a fixed one. */
+    fun onCameraReady(camera: Camera) {
+        val zoomState = camera.cameraInfo.zoomState.value ?: return
+        _uiState.value = _uiState.value.copy(
+            minZoomRatio = zoomState.minZoomRatio,
+            maxZoomRatio = zoomState.maxZoomRatio,
+            zoomRatio = zoomState.zoomRatio,
+        )
     }
 
     fun resumeScanning() {
@@ -70,19 +110,45 @@ class ScanViewModel @Inject constructor(
     }
 
     fun setActiveSession(sessionId: Long?, sessionName: String?) {
-        _uiState.value = _uiState.value.copy(activeSessionId = sessionId, activeSessionName = sessionName)
+        _uiState.value = _uiState.value.copy(
+            activeSessionId = sessionId,
+            activeSessionName = sessionName,
+            sessionPickerVisible = false,
+        )
+    }
+
+    fun showSessionPicker(show: Boolean) {
+        _uiState.value = _uiState.value.copy(sessionPickerVisible = show)
+    }
+
+    /** Creates a session and immediately makes it the target for subsequent scans. */
+    fun createAndSelectSession(name: String) {
+        if (name.isBlank()) return
+        viewModelScope.launch {
+            val id = sessionRepository.create(name.trim())
+            _uiState.value = _uiState.value.copy(
+                activeSessionId = id,
+                activeSessionName = name.trim(),
+                sessionPickerVisible = false,
+            )
+        }
     }
 
     fun showManualEntry(show: Boolean) {
         _uiState.value = _uiState.value.copy(manualEntryVisible = show)
     }
 
-    /** Called from the camera analysis callback thread's main-thread-posted result. */
+    /** Called on the main thread from the camera analyzer's callback executor. */
     fun onBarcodesDetected(detected: List<DetectedBarcode>) {
         val first = detected.firstOrNull() ?: return
-        if (_uiState.value.isPaused) return
+        if (_uiState.value.isPaused || scanInFlight) return
+        scanInFlight = true
         viewModelScope.launch {
-            handleNewScan(first.content, first.format)
+            try {
+                handleNewScan(first.content, first.format)
+            } finally {
+                scanInFlight = false
+            }
         }
     }
 
@@ -136,10 +202,11 @@ class ScanViewModel @Inject constructor(
 
         playFeedback(settings.feedback)
 
-        _uiState.value = when (state.scanMode) {
-            ScanMode.SINGLE -> state.copy(isPaused = true, lastScan = saved)
-            ScanMode.CONTINUOUS -> state.copy(batchCount = state.batchCount + 1, lastScan = saved)
-        }
+        val current = _uiState.value
+        _uiState.value = when (current.scanMode) {
+            ScanMode.SINGLE -> current.copy(isPaused = true, lastScan = saved)
+            ScanMode.CONTINUOUS -> current.copy(batchCount = current.batchCount + 1, lastScan = saved)
+        }.copy(flashFeedbackEnabled = settings.feedback.flashEnabled)
         _events.emit(ScanEvent.BarcodeSaved(saved))
 
         if (settings.transferMethod != TransferMethod.NONE) {
@@ -164,14 +231,10 @@ class ScanViewModel @Inject constructor(
         }
     }
 
-    private fun playFeedback(feedback: com.barcodebridge.app.data.settings.FeedbackSettings) {
+    private fun playFeedback(feedback: FeedbackSettings) {
         if (feedback.soundEnabled) feedbackPlayer.playSuccessTone()
         if (feedback.vibrationEnabled) feedbackPlayer.vibrateSuccess()
-        // Visual flash is driven by lastScan changing, observed by the UI layer.
-    }
-
-    override fun onCleared() {
-        feedbackPlayer.release()
-        super.onCleared()
+        // The visual flash is driven by lastScan changing, gated on
+        // ScanUiState.flashFeedbackEnabled in the UI layer.
     }
 }
