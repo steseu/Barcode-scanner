@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -41,6 +42,12 @@ fun ExportDialog(
     onSetFilenameTemplate: (String) -> Unit,
     onSetShareAfterExport: (Boolean) -> Unit,
     onExport: (ExportFormatType) -> Unit,
+    /**
+     * The settings screen reuses this dialog purely to edit the persisted
+     * defaults (every control writes through immediately), so there the
+     * confirm button just closes it instead of pretending to export.
+     */
+    confirmIsExport: Boolean = true,
 ) {
     var format by remember { mutableStateOf(ExportFormatType.CSV) }
 
@@ -64,7 +71,7 @@ fun ExportDialog(
                 if (format == ExportFormatType.CSV) {
                     item { Text(stringResource(R.string.export_csv_columns), style = androidx.compose.material3.MaterialTheme.typography.labelLarge) }
                     items(CsvColumn.entries.toList()) { column ->
-                        Row {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Checkbox(
                                 checked = settings.csv.columns.contains(column),
                                 onCheckedChange = { checked ->
@@ -75,14 +82,14 @@ fun ExportDialog(
                                     }
                                 },
                             )
-                            Text(csvColumnLabel(column), modifier = Modifier.fillMaxWidth())
+                            Text(csvColumnLabel(column), modifier = Modifier.weight(1f))
                         }
                     }
                     item {
                         HorizontalDivider(Modifier.height(1.dp))
                         Text(stringResource(R.string.export_csv_delimiter), style = androidx.compose.material3.MaterialTheme.typography.labelLarge)
                         CsvDelimiter.entries.forEach { delimiter ->
-                            Row {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 RadioButton(
                                     selected = settings.csv.delimiter == delimiter,
                                     onClick = { onUpdateCsv { it.copy(delimiter = delimiter) } },
@@ -96,12 +103,12 @@ fun ExportDialog(
                                 )
                             }
                         }
-                        Row {
-                            Text(stringResource(R.string.export_csv_header), modifier = Modifier.fillMaxWidth())
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(stringResource(R.string.export_csv_header), modifier = Modifier.weight(1f))
                             Switch(checked = settings.csv.includeHeader, onCheckedChange = { onUpdateCsv { csv -> csv.copy(includeHeader = it) } })
                         }
-                        Row {
-                            Text(stringResource(R.string.export_csv_bom), modifier = Modifier.fillMaxWidth())
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(stringResource(R.string.export_csv_bom), modifier = Modifier.weight(1f))
                             Switch(checked = settings.csv.utf8Bom, onCheckedChange = { onUpdateCsv { csv -> csv.copy(utf8Bom = it) } })
                         }
                     }
@@ -117,7 +124,7 @@ fun ExportDialog(
                         Spacer(Modifier.height(8.dp))
                         Text(stringResource(R.string.export_txt_line_ending), style = androidx.compose.material3.MaterialTheme.typography.labelLarge)
                         LineEnding.entries.forEach { ending ->
-                            Row {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 RadioButton(
                                     selected = settings.txt.lineEnding == ending,
                                     onClick = { onUpdateTxt { it.copy(lineEnding = ending) } },
@@ -139,15 +146,17 @@ fun ExportDialog(
                         label = { Text(stringResource(R.string.export_filename_template)) },
                         modifier = Modifier.fillMaxWidth(),
                     )
-                    Row {
-                        Text(stringResource(R.string.export_share_after_save), modifier = Modifier.fillMaxWidth())
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(R.string.export_share_after_save), modifier = Modifier.weight(1f))
                         Switch(checked = settings.shareAfterExport, onCheckedChange = onSetShareAfterExport)
                     }
                 }
             }
         },
         confirmButton = {
-            TextButton(onClick = { onExport(format) }) { Text(stringResource(R.string.export_start)) }
+            TextButton(onClick = { onExport(format) }) {
+                Text(stringResource(if (confirmIsExport) R.string.export_start else R.string.done))
+            }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }

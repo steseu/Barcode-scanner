@@ -1,3 +1,4 @@
+using System.Net.Sockets;
 using System.Windows;
 using BarcodeBridgeCompanion.Services;
 
@@ -6,6 +7,7 @@ namespace BarcodeBridgeCompanion;
 public partial class MainWindow : Window
 {
     private const int DefaultPort = 9999;
+    private const int MaxLogEntries = 500;
 
     private TcpScanServer? _server;
 
@@ -21,15 +23,29 @@ public partial class MainWindow : Window
     {
         _server?.Dispose();
 
+        var server = new TcpScanServer(port, token);
+        server.StatusChanged += OnStatusChanged;
+        server.ScanReceived += OnScanReceived;
+        try
+        {
+            server.Start();
+        }
+        catch (SocketException ex)
+        {
+            // Another process already owns the port - say so instead of
+            // crashing out of the constructor with an unhandled exception.
+            server.Dispose();
+            StatusText.Text = $"Port {port} is already in use ({ex.SocketErrorCode}). " +
+                              "Close the other application and restart.";
+            return;
+        }
+
+        _server = server;
+
         var host = LocalNetworkInfo.GetLikelyLocalIPv4();
         var payload = PairingQrCodeGenerator.BuildPairingPayload(host, port, token);
         QrImage.Source = PairingQrCodeGenerator.GeneratePng(payload);
         ConnectionInfoText.Text = $"Host: {host}   Port: {port}   Token: {token}";
-
-        _server = new TcpScanServer(port, token);
-        _server.StatusChanged += OnStatusChanged;
-        _server.ScanReceived += OnScanReceived;
-        _server.Start();
     }
 
     private void OnStatusChanged(ServerStatus status)
@@ -53,7 +69,16 @@ public partial class MainWindow : Window
         // UI thread, then hop to the UI thread only to update the log.
         bool pressEnter = Dispatcher.Invoke(() => SendEnterCheckBox.IsChecked == true);
         UnicodeKeyboardSender.Type(text, pressEnterAfter: pressEnter);
-        Dispatcher.Invoke(() => ScanLogListBox.Items.Insert(0, $"{DateTime.Now:HH:mm:ss}  {text}"));
+        Dispatcher.Invoke(() =>
+        {
+            ScanLogListBox.Items.Insert(0, $"{DateTime.Now:HH:mm:ss}  {text}");
+            // A long batch-scanning session would otherwise grow this list
+            // without bound.
+            while (ScanLogListBox.Items.Count > MaxLogEntries)
+            {
+                ScanLogListBox.Items.RemoveAt(ScanLogListBox.Items.Count - 1);
+            }
+        });
     }
 
     private void RegenerateTokenButton_Click(object sender, RoutedEventArgs e)

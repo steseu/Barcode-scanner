@@ -74,7 +74,7 @@ From the command line:
 > entire HID keymap engine, QR/vCard/iCalendar parsers - everything under
 > `domain/`, `export/` and `transport/hid`) was independently verified by
 > copying it into a throwaway plain Kotlin/JUnit Gradle project (Maven
-> Central only) and running the real test suite there; all 60 tests passed.
+> Central only) and running the real test suite there; all 62 tests passed.
 > Run the commands above yourself once you have Android Studio installed to
 > exercise the Android-specific layers (Compose UI, Room, CameraX, Bluetooth).
 

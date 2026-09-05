@@ -191,6 +191,7 @@ fun SettingsScreen(
             onSetFilenameTemplate = exportViewModel::setFilenameTemplate,
             onSetShareAfterExport = exportViewModel::setShareAfterExport,
             onExport = { showExportDialog = false },
+            confirmIsExport = false,
         )
     }
 

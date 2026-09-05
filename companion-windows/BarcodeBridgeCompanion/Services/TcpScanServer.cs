@@ -1,3 +1,4 @@
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -74,27 +75,35 @@ public sealed class TcpScanServer : IDisposable
         using (var stream = client.GetStream())
         using (var reader = new StreamReader(stream, Encoding.UTF8))
         {
-            var authLine = await reader.ReadLineAsync(cancellationToken);
-            if (authLine is null || !IsAuthorized(authLine))
-            {
-                return; // silently drop unauthenticated/garbled connections
-            }
-
-            StatusChanged?.Invoke(ServerStatus.ClientConnected);
             try
             {
-                string? line;
-                while ((line = await reader.ReadLineAsync(cancellationToken)) is not null)
+                var authLine = await reader.ReadLineAsync(cancellationToken);
+                if (authLine is null || !IsAuthorized(authLine))
                 {
-                    if (line.Length > 0)
+                    return; // silently drop unauthenticated/garbled connections
+                }
+
+                StatusChanged?.Invoke(ServerStatus.ClientConnected);
+                try
+                {
+                    string? line;
+                    while ((line = await reader.ReadLineAsync(cancellationToken)) is not null)
                     {
-                        ScanReceived?.Invoke(line);
+                        if (line.Length > 0)
+                        {
+                            ScanReceived?.Invoke(line);
+                        }
                     }
                 }
+                finally
+                {
+                    StatusChanged?.Invoke(ServerStatus.Listening);
+                }
             }
-            finally
+            catch (Exception ex) when (ex is IOException or OperationCanceledException or ObjectDisposedException)
             {
-                StatusChanged?.Invoke(ServerStatus.Listening);
+                // Phone went away / server shutting down - not an error worth
+                // surfacing, and it must not become an unobserved task fault.
             }
         }
     }
@@ -105,8 +114,11 @@ public sealed class TcpScanServer : IDisposable
 
     public void Dispose()
     {
+        // Deliberately not disposing _cts: the accept loop and any in-flight
+        // client handlers still hold registrations on its token, and disposing
+        // it underneath them throws ObjectDisposedException on those threads.
         _cts.Cancel();
         _listener.Stop();
-        _cts.Dispose();
+        StatusChanged?.Invoke(ServerStatus.Stopped);
     }
 }
