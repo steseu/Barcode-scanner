@@ -34,7 +34,7 @@ class KeymapEngine {
     }
 
     private fun findUnmappable(text: String, layout: KeyboardLayoutMap): List<Char> =
-        text.filter { it !in layout.entries }.distinct()
+        text.toList().filter { it !in layout.entries }.distinct()
 
     private fun appendText(
         text: String,
