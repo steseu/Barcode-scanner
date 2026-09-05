@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Compose owns theming (Material3 + dynamic color, see ui/theme/Theme.kt).
+         This base theme only configures the window before Compose takes over,
+         avoiding a flash of the wrong background on cold start. -->
+    <style name="Theme.BarcodeBridge" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+</resources>

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BarcodeBridge</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_scan">Scannen</string>
+    <string name="nav_history">Verlauf</string>
+    <string name="nav_settings">Einstellungen</string>
+
+    <!-- Scan screen -->
+    <string name="scan_mode_single">Einzelscan</string>
+    <string name="scan_mode_continuous">Dauerscan</string>
+    <string name="scan_flashlight_on">Taschenlampe einschalten</string>
+    <string name="scan_flashlight_off">Taschenlampe ausschalten</string>
+    <string name="scan_from_gallery">Aus Bild scannen</string>
+    <string name="scan_manual_entry">Manuelle Eingabe</string>
+    <string name="scan_manual_entry_hint">Barcode-Inhalt eingeben</string>
+    <string name="scan_manual_entry_format">Format</string>
+    <string name="scan_result_copied">In Zwischenablage kopiert</string>
+    <string name="scan_send_to_pc">An PC senden</string>
+    <string name="scan_no_barcode_found">Kein Barcode in diesem Bild gefunden</string>
+    <string name="scan_hint_point_camera">Kamera auf einen Barcode richten</string>
+    <string name="scan_batch_count">%1$d gescannt</string>
+    <string name="scan_duplicate_skipped">Duplikat übersprungen</string>
+    <string name="cd_torch_toggle">Taschenlampe umschalten</string>
+    <string name="cd_scan_overlay">Zielrahmen für Barcode</string>
+    <string name="cd_capture_result">Scan-Ergebnis</string>
+    <string name="cd_switch_mode">Scan-Modus wechseln</string>
+
+    <!-- Permissions -->
+    <string name="permission_camera_title">Kamerazugriff erforderlich</string>
+    <string name="permission_camera_rationale">BarcodeBridge benötigt Kamerazugriff, um Barcodes zu scannen. Es werden keine Bilder gespeichert oder übertragen.</string>
+    <string name="permission_bluetooth_title">Bluetooth-Zugriff erforderlich</string>
+    <string name="permission_bluetooth_rationale">Bluetooth-Zugriff wird benötigt, um dieses Gerät als Tastatur (HID) zu registrieren und Scans direkt an einen Windows-PC zu senden.</string>
+    <string name="permission_nearby_wifi_title">Zugriff auf lokales Netzwerk erforderlich</string>
+    <string name="permission_nearby_wifi_rationale">Der Zugriff auf das lokale Netzwerk wird benötigt, um die Companion-App auf deinem PC zu finden und zu verbinden.</string>
+    <string name="permission_open_settings">App-Einstellungen öffnen</string>
+    <string name="permission_grant">Berechtigung erteilen</string>
+    <string name="permission_denied_permanently">Die Berechtigung wurde dauerhaft verweigert. Bitte in den Systemeinstellungen aktivieren.</string>
+
+    <!-- History -->
+    <string name="history_search_hint">Verlauf durchsuchen</string>
+    <string name="history_filter_format">Format</string>
+    <string name="history_filter_date_range">Zeitraum</string>
+    <string name="history_filter_all_formats">Alle Formate</string>
+    <string name="history_empty">Noch keine Scans</string>
+    <string name="history_select_all">Alle auswählen</string>
+    <string name="history_selected_count">%1$d ausgewählt</string>
+    <string name="history_delete">Löschen</string>
+    <string name="history_delete_confirm_title">Scans löschen?</string>
+    <string name="history_delete_confirm_message">Dadurch werden %1$d Scan(s) endgültig gelöscht.</string>
+    <string name="history_edit_note">Notiz bearbeiten</string>
+    <string name="history_copy">Kopieren</string>
+    <string name="history_open_url">Link öffnen</string>
+    <string name="history_add_contact">Kontakt hinzufügen</string>
+    <string name="history_connect_wifi">Mit WLAN verbinden</string>
+    <string name="history_add_calendar_event">Kalendereintrag hinzufügen</string>
+    <string name="history_session_new">Neue Session</string>
+    <string name="history_session_rename">Session umbenennen</string>
+    <string name="history_session_name_hint">Session-Name</string>
+    <string name="history_session_default">Nicht zugeordnete Scans</string>
+    <string name="history_export">Exportieren</string>
+    <string name="history_share">Teilen</string>
+    <string name="history_cancel">Abbrechen</string>
+    <string name="history_save">Speichern</string>
+    <string name="history_note_hint">Notiz</string>
+
+    <!-- Export -->
+    <string name="export_format_csv">CSV</string>
+    <string name="export_format_txt">TXT</string>
+    <string name="export_csv_columns">Spalten</string>
+    <string name="export_csv_column_content">Inhalt</string>
+    <string name="export_csv_column_format">Format</string>
+    <string name="export_csv_column_date">Datum</string>
+    <string name="export_csv_column_time">Uhrzeit</string>
+    <string name="export_csv_column_note">Notiz</string>
+    <string name="export_csv_column_session">Session</string>
+    <string name="export_csv_column_index">Zähler</string>
+    <string name="export_csv_delimiter">Trennzeichen</string>
+    <string name="export_csv_delimiter_comma">Komma (,)</string>
+    <string name="export_csv_delimiter_semicolon">Semikolon (;)</string>
+    <string name="export_csv_delimiter_tab">Tabulator</string>
+    <string name="export_csv_header">Kopfzeile</string>
+    <string name="export_csv_bom">UTF-8-BOM hinzufügen (Excel-Kompatibilität)</string>
+    <string name="export_txt_template">Zeilen-Vorlage</string>
+    <string name="export_txt_template_hint">z. B. {content}\\t{format}\\t{timestamp}</string>
+    <string name="export_txt_line_ending">Zeilenende</string>
+    <string name="export_txt_line_ending_lf">LF (Unix/macOS)</string>
+    <string name="export_txt_line_ending_crlf">CRLF (Windows)</string>
+    <string name="export_filename_template">Dateiname</string>
+    <string name="export_start">Exportieren</string>
+    <string name="export_success">Export erfolgreich gespeichert</string>
+    <string name="export_failed">Export fehlgeschlagen: %1$s</string>
+    <string name="export_share_after_save">Nach Export teilen</string>
+
+    <!-- Settings -->
+    <string name="settings_section_scan">Scannen</string>
+    <string name="settings_section_feedback">Feedback</string>
+    <string name="settings_section_export">Export</string>
+    <string name="settings_section_transfer">PC-Übertragung</string>
+    <string name="settings_section_language">Sprache</string>
+    <string name="settings_section_about">Über</string>
+    <string name="settings_sound_feedback">Ton</string>
+    <string name="settings_vibration_feedback">Vibration</string>
+    <string name="settings_flash_feedback">Visueller Blitz</string>
+    <string name="settings_duplicate_window">Zeitfenster für Duplikaterkennung</string>
+    <string name="settings_duplicate_window_seconds">%1$.1f s</string>
+    <string name="settings_language_system">System</string>
+    <string name="settings_language_german">Deutsch</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_transfer_method">Übertragungsweg</string>
+    <string name="settings_transfer_method_hid">Bluetooth HID (Tastatur)</string>
+    <string name="settings_transfer_method_tcp">WLAN / TCP-Companion-App</string>
+    <string name="settings_transfer_method_http">HTTP-Webhook</string>
+    <string name="settings_transfer_method_none">Aus</string>
+
+    <!-- HID transport -->
+    <string name="hid_keyboard_layout">Tastaturlayout</string>
+    <string name="hid_keyboard_layout_hint">Wähle dasselbe Layout, das aktuell in der Windows-Taskleiste beim Sprachumschalter aktiv ist (z. B. \"DEU\").</string>
+    <string name="hid_layout_de">Deutsch (T1)</string>
+    <string name="hid_layout_en_us">English (US)</string>
+    <string name="hid_layout_en_uk">English (UK)</string>
+    <string name="hid_layout_ch">Schweizerdeutsch</string>
+    <string name="hid_layout_at">Österreich</string>
+    <string name="hid_layout_fr_azerty">Französisch (AZERTY)</string>
+    <string name="hid_prefix">Präfix</string>
+    <string name="hid_suffix">Suffix</string>
+    <string name="hid_suffix_none">Keins</string>
+    <string name="hid_suffix_enter">Enter</string>
+    <string name="hid_suffix_tab">Tab</string>
+    <string name="hid_suffix_crlf">CR+LF</string>
+    <string name="hid_typing_delay">Tippverzögerung pro Taste</string>
+    <string name="hid_typing_delay_ms">%1$d ms</string>
+    <string name="hid_status_disconnected">Nicht verbunden</string>
+    <string name="hid_status_connecting">Verbindung wird aufgebaut…</string>
+    <string name="hid_status_connected">Verbunden mit %1$s</string>
+    <string name="hid_status_bluetooth_off">Bluetooth ist ausgeschaltet</string>
+    <string name="hid_auto_reconnect">Automatisch wiederverbinden</string>
+    <string name="hid_unmappable_action">Wenn ein Zeichen nicht abgebildet werden kann</string>
+    <string name="hid_unmappable_skip">Zeichen überspringen</string>
+    <string name="hid_unmappable_replace">Durch ? ersetzen</string>
+    <string name="hid_unmappable_warn">Übertragung abbrechen und warnen (empfohlen)</string>
+    <string name="hid_unmappable_dialog_title">Einige Zeichen können nicht getippt werden</string>
+    <string name="hid_unmappable_dialog_message">Folgende Zeichen können mit dem Layout \"%1$s\" nicht dargestellt werden: %2$s. Erwäge stattdessen die WLAN-Companion-App (Übertragungsweg B), die layoutunabhängig ist.</string>
+    <string name="hid_suggest_method_b">Zur WLAN-Companion-App wechseln</string>
+    <string name="hid_calibration_start">Kalibrier-Assistent starten</string>
+    <string name="hid_calibration_title">Tastaturlayout-Kalibrierung</string>
+    <string name="hid_calibration_intro">Eine Prüfzeichenkette wird an den PC gesendet. Tippe oder scanne genau das zurück, was im fokussierten Fenster am PC erschienen ist.</string>
+    <string name="hid_calibration_send">Prüfzeichenkette senden</string>
+    <string name="hid_calibration_expected">Erwartet</string>
+    <string name="hid_calibration_actual_hint">Was tatsächlich am PC erschienen ist</string>
+    <string name="hid_calibration_compare">Vergleichen</string>
+    <string name="hid_calibration_match">Das Layout \"%1$s\" passt. Keine Aktion nötig.</string>
+    <string name="hid_calibration_mismatch">Abweichung gefunden. Vorgeschlagenes Layout: %1$s</string>
+    <string name="hid_calibration_no_match">Kein Layout passt exakt. Abweichende Zeichen sind unten markiert.</string>
+
+    <!-- TCP transport -->
+    <string name="tcp_pairing_scan_qr">Kopplungs-QR-Code scannen</string>
+    <string name="tcp_host">Host</string>
+    <string name="tcp_port">Port</string>
+    <string name="tcp_token">Token</string>
+    <string name="tcp_status_disconnected">Nicht verbunden</string>
+    <string name="tcp_status_connecting">Verbindung wird aufgebaut…</string>
+    <string name="tcp_status_connected">Verbunden mit %1$s:%2$d</string>
+    <string name="tcp_status_unreachable">Host nicht erreichbar</string>
+    <string name="tcp_offline_buffer_count">%1$d Scan(s) offline gepuffert</string>
+    <string name="tcp_manual_entry">Manuell eingeben</string>
+
+    <!-- HTTP transport -->
+    <string name="http_webhook_url">Webhook-URL</string>
+    <string name="http_webhook_method">Format der Nutzdaten</string>
+    <string name="http_webhook_json">JSON</string>
+    <string name="http_webhook_plain">Klartext</string>
+    <string name="http_webhook_headers">Eigene Header</string>
+    <string name="http_webhook_header_key_hint">Header-Name</string>
+    <string name="http_webhook_header_value_hint">Header-Wert</string>
+    <string name="http_webhook_add_header">Header hinzufügen</string>
+    <string name="http_webhook_test">Testanfrage senden</string>
+    <string name="http_webhook_test_success">Testanfrage erfolgreich (%1$d)</string>
+    <string name="http_webhook_test_failed">Testanfrage fehlgeschlagen: %1$s</string>
+
+    <!-- Errors -->
+    <string name="error_no_camera">Keine Kamera auf diesem Gerät verfügbar.</string>
+    <string name="error_camera_permission_denied">Die Kameraberechtigung wurde verweigert. Erteile sie in den Systemeinstellungen, um Barcodes zu scannen.</string>
+    <string name="error_bluetooth_disabled">Bluetooth ist ausgeschaltet. Aktiviere es, um Scans als Tastatur zu senden.</string>
+    <string name="error_bluetooth_permission_denied">Die Bluetooth-Berechtigung wurde verweigert. Erteile sie in den Systemeinstellungen, um die HID-Übertragung zu nutzen.</string>
+    <string name="error_host_unreachable">Der PC unter %1$s:%2$d konnte nicht erreicht werden. Prüfe, ob die Companion-App läuft und sich beide Geräte im selben Netzwerk befinden.</string>
+    <string name="error_generic_retry">Etwas ist schiefgelaufen. Bitte erneut versuchen.</string>
+    <string name="error_action_open_settings">Einstellungen öffnen</string>
+    <string name="error_action_retry">Erneut versuchen</string>
+
+    <!-- Plurals -->
+    <plurals name="scans_count">
+        <item quantity="one">%1$d Scan</item>
+        <item quantity="other">%1$d Scans</item>
+    </plurals>
+    <plurals name="selected_items_count">
+        <item quantity="one">%1$d Element ausgewählt</item>
+        <item quantity="other">%1$d Elemente ausgewählt</item>
+    </plurals>
+
+    <string name="ok">OK</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="close">Schließen</string>
+    <string name="back">Zurück</string>
+    <string name="done">Fertig</string>
+</resources>

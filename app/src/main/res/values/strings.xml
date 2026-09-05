@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BarcodeBridge</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_scan">Scan</string>
+    <string name="nav_history">History</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Scan screen -->
+    <string name="scan_mode_single">Single scan</string>
+    <string name="scan_mode_continuous">Continuous scan</string>
+    <string name="scan_flashlight_on">Turn flashlight on</string>
+    <string name="scan_flashlight_off">Turn flashlight off</string>
+    <string name="scan_from_gallery">Scan from image</string>
+    <string name="scan_manual_entry">Manual entry</string>
+    <string name="scan_manual_entry_hint">Enter barcode content</string>
+    <string name="scan_manual_entry_format">Format</string>
+    <string name="scan_result_copied">Copied to clipboard</string>
+    <string name="scan_send_to_pc">Send to PC</string>
+    <string name="scan_no_barcode_found">No barcode found in this image</string>
+    <string name="scan_hint_point_camera">Point the camera at a barcode</string>
+    <string name="scan_batch_count">%1$d scanned</string>
+    <string name="scan_duplicate_skipped">Duplicate skipped</string>
+    <string name="cd_torch_toggle">Toggle flashlight</string>
+    <string name="cd_scan_overlay">Barcode target frame</string>
+    <string name="cd_capture_result">Scan result</string>
+    <string name="cd_switch_mode">Switch scan mode</string>
+
+    <!-- Permissions -->
+    <string name="permission_camera_title">Camera access required</string>
+    <string name="permission_camera_rationale">BarcodeBridge needs camera access to scan barcodes. No image is stored or transmitted.</string>
+    <string name="permission_bluetooth_title">Bluetooth access required</string>
+    <string name="permission_bluetooth_rationale">Bluetooth access is required to register this device as a keyboard (HID) and send scans directly to a Windows PC.</string>
+    <string name="permission_nearby_wifi_title">Local network access required</string>
+    <string name="permission_nearby_wifi_rationale">Local network access is required to discover and connect to the companion app on your PC.</string>
+    <string name="permission_open_settings">Open app settings</string>
+    <string name="permission_grant">Grant permission</string>
+    <string name="permission_denied_permanently">Permission was permanently denied. Please enable it in the system settings.</string>
+
+    <!-- History -->
+    <string name="history_search_hint">Search history</string>
+    <string name="history_filter_format">Format</string>
+    <string name="history_filter_date_range">Time period</string>
+    <string name="history_filter_all_formats">All formats</string>
+    <string name="history_empty">No scans yet</string>
+    <string name="history_select_all">Select all</string>
+    <string name="history_selected_count">%1$d selected</string>
+    <string name="history_delete">Delete</string>
+    <string name="history_delete_confirm_title">Delete scans?</string>
+    <string name="history_delete_confirm_message">This will permanently delete %1$d scan(s).</string>
+    <string name="history_edit_note">Edit note</string>
+    <string name="history_copy">Copy</string>
+    <string name="history_open_url">Open link</string>
+    <string name="history_add_contact">Add contact</string>
+    <string name="history_connect_wifi">Connect to Wi-Fi</string>
+    <string name="history_add_calendar_event">Add calendar event</string>
+    <string name="history_session_new">New session</string>
+    <string name="history_session_rename">Rename session</string>
+    <string name="history_session_name_hint">Session name</string>
+    <string name="history_session_default">Unassigned scans</string>
+    <string name="history_export">Export</string>
+    <string name="history_share">Share</string>
+    <string name="history_cancel">Cancel</string>
+    <string name="history_save">Save</string>
+    <string name="history_note_hint">Note</string>
+
+    <!-- Export -->
+    <string name="export_format_csv">CSV</string>
+    <string name="export_format_txt">TXT</string>
+    <string name="export_csv_columns">Columns</string>
+    <string name="export_csv_column_content">Content</string>
+    <string name="export_csv_column_format">Format</string>
+    <string name="export_csv_column_date">Date</string>
+    <string name="export_csv_column_time">Time</string>
+    <string name="export_csv_column_note">Note</string>
+    <string name="export_csv_column_session">Session</string>
+    <string name="export_csv_column_index">Row number</string>
+    <string name="export_csv_delimiter">Delimiter</string>
+    <string name="export_csv_delimiter_comma">Comma (,)</string>
+    <string name="export_csv_delimiter_semicolon">Semicolon (;)</string>
+    <string name="export_csv_delimiter_tab">Tab</string>
+    <string name="export_csv_header">Header row</string>
+    <string name="export_csv_bom">Add UTF-8 BOM (Excel compatibility)</string>
+    <string name="export_txt_template">Line template</string>
+    <string name="export_txt_template_hint">e.g. {content}\\t{format}\\t{timestamp}</string>
+    <string name="export_txt_line_ending">Line ending</string>
+    <string name="export_txt_line_ending_lf">LF (Unix/macOS)</string>
+    <string name="export_txt_line_ending_crlf">CRLF (Windows)</string>
+    <string name="export_filename_template">File name</string>
+    <string name="export_start">Export</string>
+    <string name="export_success">Export saved successfully</string>
+    <string name="export_failed">Export failed: %1$s</string>
+    <string name="export_share_after_save">Share after export</string>
+
+    <!-- Settings -->
+    <string name="settings_section_scan">Scanning</string>
+    <string name="settings_section_feedback">Feedback</string>
+    <string name="settings_section_export">Export</string>
+    <string name="settings_section_transfer">PC transfer</string>
+    <string name="settings_section_language">Language</string>
+    <string name="settings_section_about">About</string>
+    <string name="settings_sound_feedback">Sound</string>
+    <string name="settings_vibration_feedback">Vibration</string>
+    <string name="settings_flash_feedback">Visual flash</string>
+    <string name="settings_duplicate_window">Duplicate detection window</string>
+    <string name="settings_duplicate_window_seconds">%1$.1f s</string>
+    <string name="settings_language_system">System</string>
+    <string name="settings_language_german">Deutsch</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_transfer_method">Transfer method</string>
+    <string name="settings_transfer_method_hid">Bluetooth HID (keyboard)</string>
+    <string name="settings_transfer_method_tcp">Wi-Fi / TCP companion app</string>
+    <string name="settings_transfer_method_http">HTTP webhook</string>
+    <string name="settings_transfer_method_none">Off</string>
+
+    <!-- HID transport -->
+    <string name="hid_keyboard_layout">Keyboard layout</string>
+    <string name="hid_keyboard_layout_hint">Choose the same layout that is currently active on the Windows taskbar language switcher (e.g. \"DEU\").</string>
+    <string name="hid_layout_de">German (T1)</string>
+    <string name="hid_layout_en_us">English (US)</string>
+    <string name="hid_layout_en_uk">English (UK)</string>
+    <string name="hid_layout_ch">Swiss German</string>
+    <string name="hid_layout_at">Austrian</string>
+    <string name="hid_layout_fr_azerty">French (AZERTY)</string>
+    <string name="hid_prefix">Prefix</string>
+    <string name="hid_suffix">Suffix</string>
+    <string name="hid_suffix_none">None</string>
+    <string name="hid_suffix_enter">Enter</string>
+    <string name="hid_suffix_tab">Tab</string>
+    <string name="hid_suffix_crlf">CR+LF</string>
+    <string name="hid_typing_delay">Typing delay per key</string>
+    <string name="hid_typing_delay_ms">%1$d ms</string>
+    <string name="hid_status_disconnected">Not connected</string>
+    <string name="hid_status_connecting">Connecting…</string>
+    <string name="hid_status_connected">Connected to %1$s</string>
+    <string name="hid_status_bluetooth_off">Bluetooth is turned off</string>
+    <string name="hid_auto_reconnect">Auto-reconnect</string>
+    <string name="hid_unmappable_action">If a character cannot be mapped</string>
+    <string name="hid_unmappable_skip">Skip character</string>
+    <string name="hid_unmappable_replace">Replace with ?</string>
+    <string name="hid_unmappable_warn">Cancel transmission and warn (recommended)</string>
+    <string name="hid_unmappable_dialog_title">Some characters cannot be typed</string>
+    <string name="hid_unmappable_dialog_message">The following characters cannot be represented with the \"%1$s\" keyboard layout: %2$s. Consider using the Wi-Fi companion app (transfer method B) instead, which is layout-independent.</string>
+    <string name="hid_suggest_method_b">Switch to Wi-Fi companion app</string>
+    <string name="hid_calibration_start">Start calibration wizard</string>
+    <string name="hid_calibration_title">Keyboard layout calibration</string>
+    <string name="hid_calibration_intro">A test string will be sent to the PC. Type or scan back exactly what appeared in the focused window on the PC.</string>
+    <string name="hid_calibration_send">Send test string</string>
+    <string name="hid_calibration_expected">Expected</string>
+    <string name="hid_calibration_actual_hint">What actually appeared on the PC</string>
+    <string name="hid_calibration_compare">Compare</string>
+    <string name="hid_calibration_match">The layout \"%1$s\" matches. No action needed.</string>
+    <string name="hid_calibration_mismatch">Mismatch found. Suggested layout: %1$s</string>
+    <string name="hid_calibration_no_match">No layout matched exactly. Differing characters are highlighted below.</string>
+
+    <!-- TCP transport -->
+    <string name="tcp_pairing_scan_qr">Scan pairing QR code</string>
+    <string name="tcp_host">Host</string>
+    <string name="tcp_port">Port</string>
+    <string name="tcp_token">Token</string>
+    <string name="tcp_status_disconnected">Not connected</string>
+    <string name="tcp_status_connecting">Connecting…</string>
+    <string name="tcp_status_connected">Connected to %1$s:%2$d</string>
+    <string name="tcp_status_unreachable">Host not reachable</string>
+    <string name="tcp_offline_buffer_count">%1$d scan(s) queued offline</string>
+    <string name="tcp_manual_entry">Enter manually</string>
+
+    <!-- HTTP transport -->
+    <string name="http_webhook_url">Webhook URL</string>
+    <string name="http_webhook_method">Payload format</string>
+    <string name="http_webhook_json">JSON</string>
+    <string name="http_webhook_plain">Plain text</string>
+    <string name="http_webhook_headers">Custom headers</string>
+    <string name="http_webhook_header_key_hint">Header name</string>
+    <string name="http_webhook_header_value_hint">Header value</string>
+    <string name="http_webhook_add_header">Add header</string>
+    <string name="http_webhook_test">Send test request</string>
+    <string name="http_webhook_test_success">Test request succeeded (%1$d)</string>
+    <string name="http_webhook_test_failed">Test request failed: %1$s</string>
+
+    <!-- Errors -->
+    <string name="error_no_camera">No camera available on this device.</string>
+    <string name="error_camera_permission_denied">Camera permission was denied. Grant it in system settings to scan barcodes.</string>
+    <string name="error_bluetooth_disabled">Bluetooth is turned off. Enable it to send scans as a keyboard.</string>
+    <string name="error_bluetooth_permission_denied">Bluetooth permission was denied. Grant it in system settings to use HID transfer.</string>
+    <string name="error_host_unreachable">The PC at %1$s:%2$d could not be reached. Check that the companion app is running and both devices are on the same network.</string>
+    <string name="error_generic_retry">Something went wrong. Please try again.</string>
+    <string name="error_action_open_settings">Open settings</string>
+    <string name="error_action_retry">Retry</string>
+
+    <!-- Plurals -->
+    <plurals name="scans_count">
+        <item quantity="one">%1$d scan</item>
+        <item quantity="other">%1$d scans</item>
+    </plurals>
+    <plurals name="selected_items_count">
+        <item quantity="one">%1$d item selected</item>
+        <item quantity="other">%1$d items selected</item>
+    </plurals>
+
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+    <string name="back">Back</string>
+    <string name="done">Done</string>
+</resources>
